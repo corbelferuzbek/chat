@@ -1,0 +1,287 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: #fafafa;
+    color: #262626;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-left: 1px solid #dbdbdb;
+    border-right: 1px solid #dbdbdb;
+    background: #fff;
+}
+
+/* Chap panel (Chatlar) */
+.sidebar {
+    width: 350px;
+    border-right: 1px solid #dbdbdb;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+.sidebar-header h2 {
+    margin: 0 0 15px 0;
+    font-size: 22px;
+}
+
+.sidebar-header input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #dbdbdb;
+    background: #efefef;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.section-title {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #8e8e8e;
+    background: #f8f9fa;
+    border-top: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+    margin-top: 10px;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.chat-item:hover {
+    background: #f8f9fa;
+}
+
+.chat-item.active {
+    background: #efefef;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #0095f6;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.chat-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+}
+
+.chat-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #8e8e8e;
+}
+
+/* O'ng panel (Chat oynasi) */
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #dbdbdb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.status-online {
+    font-size: 12px;
+    color: #0095f6;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fafafa;
+}
+
+.message {
+    max-width: 60%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.message.received {
+    background: #efefef;
+    align-self: flex-start;
+}
+
+.message.sent {
+    background: #0095f6;
+    color: white;
+    align-self: flex-end;
+}
+
+.chat-img {
+    max-width: 150px;
+    border-radius: 10px;
+}
+
+.script-alert {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 8px 15px;
+    font-size: 13px;
+    text-align: center;
+    border-top: 1px solid #c8e6c9;
+}
+
+.chat-input-area {
+    padding: 15px 20px;
+    border-top: 1px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+}
+
+.file-btn {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chat-input-area input[type="text"] {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #dbdbdb;
+    border-radius: 22px;
+    outline: none;
+}
+
+.chat-input-area button {
+    background: #0095f6;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.chat-input-area button:hover {
+    background: #1877f2;
+}
+
+/* Login / Register Oynasi dizayni */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #fafafa;
+}
+
+.auth-box {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #dbdbdb;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.auth-box h2 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    font-size: 20px;
+}
+
+.auth-box input {
+    padding: 10px 14px;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    outline: none;
+    background: #fafafa;
+}
+
+.auth-box button {
+    background: #0095f6;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.auth-box button:hover {
+    background: #1877f2;
+}
+
+.auth-error {
+    color: #ed4956;
+    font-size: 13px;
+    text-align: center;
+}
+
+.auth-switch {
+    font-size: 12px;
+    color: #0095f6;
+    text-align: center;
+    cursor: pointer;
+    margin: 0;
+}
+
+.user-profile-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #8e8e8e;
+}
+
+.logout-btn {
+    background: #ed4956;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+}

